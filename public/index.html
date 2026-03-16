@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>BJJ Academy CRM</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>BJJ Academy CRM</h1>
+
+<h2>Cadastrar Aluno</h2>
+
+<input id="nome" placeholder="Nome">
+<input id="faixa" placeholder="Faixa">
+<input id="telefone" placeholder="Telefone">
+<input id="plano" placeholder="Plano">
+<input id="status" placeholder="Status">
+<input id="data" type="date">
+<input id="busca" placeholder="Buscar aluno..." onkeyup="buscarAluno()">
+
+<button onclick="cadastrarAluno()">Salvar</button>
+
+<h2>Lista de Alunos</h2>
+
+<table>
+ <thead>
+  <tr>
+ <th>Nome</th>
+ <th>Faixa</th>
+ <th>Telefone</th>
+ <th>Plano</th>
+ <th>Status</th>
+ <th>Data Matrícula</th>
+ <th>Ações</th>
+</tr>
+ </thead>
+
+ <tbody id="listaAlunos"></tbody>
+</table>
+
+<script src="script.js"></script>
+
+</body>
+</html>

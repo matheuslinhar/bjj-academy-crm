@@ -1,0 +1,54 @@
+body{
+ font-family: Arial;
+ padding:40px;
+ background:#f4f4f4;
+}
+
+h1{
+ color:#222;
+}
+
+input{
+ padding:8px;
+ margin:5px;
+}
+
+button{
+ padding:8px 12px;
+ background:#222;
+ color:white;
+ border:none;
+ cursor:pointer;
+}
+
+button:hover{
+ background:#444;
+}
+
+table{
+ margin-top:20px;
+ border-collapse: collapse;
+ width:700px;
+ background:white;
+}
+
+th, td{
+ padding:10px;
+ border:1px solid #ddd;
+ text-align:left;
+}
+
+th{
+ background:#222;
+ color:white;
+}
+
+table{
+ border-collapse: collapse;
+ width: 700px;
+}
+
+th, td{
+ border:1px solid #ccc;
+ padding:10px;
+}
