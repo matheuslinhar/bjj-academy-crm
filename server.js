@@ -1,3 +1,4 @@
+const db = require("./database")
 const express = require("express")
 const app = express()
 
@@ -6,14 +7,36 @@ app.use(express.static("public"))
 
 let alunos = []
 
-app.get("/", (req, res) => {
-  res.send("BJJ Academy CRM funcionando")
+app.get("/alunos", (req, res) => {
+
+ db.all("SELECT * FROM alunos", [], (err, rows) => {
+
+  if(err){
+   return res.status(500).json(err)
+  }
+
+  res.json(rows)
+
+ })
+
 })
 
 app.post("/alunos", (req, res) => {
-  const aluno = req.body
-  alunos.push(aluno)
-  res.json(aluno)
+
+ const { nome, faixa, telefone, plano, status, data } = req.body
+
+ db.run(
+  "INSERT INTO alunos (nome, faixa, telefone, plano, status, data) VALUES (?, ?, ?, ?, ?, ?)",
+  [nome, faixa, telefone, plano, status, data],
+  function(err){
+   if(err){
+    return res.status(500).json(err)
+   }
+
+   res.json({ id: this.lastID })
+  }
+ )
+
 })
 
 app.get("/alunos", (req, res) => {
