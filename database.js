@@ -12,7 +12,17 @@ db.serialize(() => {
    telefone TEXT,
    plano TEXT,
    status TEXT,
-   data TEXT
+   data TEXT,
+   user_id INTEGER
+  )
+ `)
+
+ db.run(`
+  CREATE TABLE IF NOT EXISTS users (
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   email TEXT UNIQUE,
+   senha TEXT,
+   role TEXT
   )
  `)
 

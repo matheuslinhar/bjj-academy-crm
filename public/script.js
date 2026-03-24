@@ -4,7 +4,75 @@ function normalizarStatus(status) {
  return status?.toLowerCase().trim()
 }
 
-/* CADASTRAR */
+/* 🔐 LOGIN */
+async function login() {
+ const email = document.getElementById("email").value
+ const senha = document.getElementById("senha").value
+
+ const res = await fetch("/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, senha })
+ })
+
+ const data = await res.json()
+
+ if (data.token) {
+  localStorage.setItem("token", data.token)
+
+  document.getElementById("login").style.display = "none"
+  document.getElementById("app").style.display = "block"
+
+  carregarTudo()
+ } else {
+  alert(data.erro || "Erro no login")
+ }
+}
+
+/* 🆕 REGISTER */
+async function register() {
+ const nome = prompt("Nome do aluno")
+ const email = prompt("Email")
+ const senha = prompt("Senha")
+
+ if (!nome || !email || !senha) {
+  alert("Preencha tudo")
+  return
+ }
+
+ const res = await fetch("/register", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ nome, email, senha })
+ })
+
+ const data = await res.json()
+
+ if (res.ok) {
+  alert("Aluno criado com login!")
+ } else {
+  alert(data.erro || "Erro ao criar usuário")
+ }
+}
+
+/* 🚪 LOGOUT */
+function logout() {
+ localStorage.removeItem("token")
+ location.reload()
+}
+
+/* 📡 API COM TOKEN */
+function api(url, options = {}) {
+ return fetch(url, {
+  ...options,
+  headers: {
+   "Content-Type": "application/json",
+   Authorization: localStorage.getItem("token")
+  }
+ })
+}
+
+/* ➕ CADASTRAR ALUNO */
 async function cadastrarAluno() {
 
  const aluno = {
@@ -16,9 +84,8 @@ async function cadastrarAluno() {
   data: document.getElementById("data").value
  }
 
- await fetch("/alunos", {
+ await api("/alunos", {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
   body: JSON.stringify(aluno)
  })
 
@@ -26,10 +93,16 @@ async function cadastrarAluno() {
  limparCampos()
 }
 
-/* LISTAR */
+/* 📋 LISTAR ALUNOS */
 async function carregarAlunos() {
 
- const res = await fetch("/alunos")
+ const res = await api("/alunos")
+
+ if (res.status === 401) {
+  logout()
+  return
+ }
+
  const alunos = await res.json()
 
  const lista = document.getElementById("listaAlunos")
@@ -43,9 +116,9 @@ async function carregarAlunos() {
 
   linha.innerHTML = `
    <td>${aluno.nome}</td>
-   <td>${aluno.faixa}</td>
-   <td>${aluno.telefone}</td>
-   <td>${aluno.plano}</td>
+   <td>${aluno.faixa || "-"}</td>
+   <td>${aluno.telefone || "-"}</td>
+   <td>${aluno.plano || "-"}</td>
    <td class="${statusNormalizado === 'ativo' ? 'ativo' : 'inativo'}">
     ${aluno.status}
    </td>
@@ -60,26 +133,31 @@ async function carregarAlunos() {
  })
 }
 
-/* DELETAR */
+/* ❌ DELETAR */
 async function deletarAluno(id) {
 
  if (!confirm("Tem certeza?")) return
 
- await fetch("/alunos/" + id, { method: "DELETE" })
+ const res = await api("/alunos/" + id, { method: "DELETE" })
+ const data = await res.json()
+
+ if (!res.ok) {
+  alert(data.erro || "Erro ao deletar")
+  return
+ }
 
  carregarTudo()
 }
 
-/* EDITAR */
+/* ✏️ EDITAR */
 async function editarAluno(id) {
 
  const nome = prompt("Novo nome")
  const faixa = prompt("Nova faixa")
  const status = prompt("Status (Ativo/Inativo)")
 
- await fetch("/alunos/" + id, {
+ await api("/alunos/" + id, {
   method: "PUT",
-  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
    nome,
    faixa,
@@ -93,10 +171,10 @@ async function editarAluno(id) {
  carregarTudo()
 }
 
-/* DASHBOARD */
+/* 📊 DASHBOARD */
 async function carregarDashboard() {
 
- const res = await fetch("/dashboard")
+ const res = await api("/dashboard")
  const d = await res.json()
 
  document.getElementById("total").innerText = d.total
@@ -104,10 +182,10 @@ async function carregarDashboard() {
  document.getElementById("inativos").innerText = d.inativos
 }
 
-/* GRÁFICO */
+/* 📈 GRÁFICO */
 async function carregarGrafico() {
 
- const res = await fetch("/dashboard")
+ const res = await api("/dashboard")
  const d = await res.json()
 
  const ctx = document.getElementById("graficoAlunos").getContext("2d")
@@ -122,25 +200,31 @@ async function carregarGrafico() {
     data: [d.ativos, d.inativos],
     backgroundColor: ["#22c55e", "#ef4444"]
    }]
-  },
-  options: {
-   responsive: true,
-   maintainAspectRatio: false
   }
  })
 }
 
-/* HELPERS */
+/* 🧹 LIMPAR CAMPOS */
 function limparCampos() {
  ["nome","faixa","telefone","plano","status","data"]
   .forEach(id => document.getElementById(id).value = "")
 }
 
+/* 🔄 CARREGAR TUDO */
 function carregarTudo() {
  carregarAlunos()
  carregarDashboard()
  carregarGrafico()
 }
 
-/* INIT */
-carregarTudo()
+/* 🚀 INIT */
+if (localStorage.getItem("token")) {
+ document.getElementById("login").style.display = "none"
+ document.getElementById("app").style.display = "block"
+ carregarTudo()
+}
+
+function logout() {
+ localStorage.removeItem("token")
+ location.reload()
+}

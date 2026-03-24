@@ -10,14 +10,27 @@
 
 <h1>BJJ Academy CRM</h1>
 
+<!-- 🔐 LOGIN -->
+<div id="login">
+ <h2>Login</h2>
+ <input id="email" placeholder="Email">
+ <input id="senha" type="password" placeholder="Senha">
+ <button onclick="login()">Entrar</button>
+ <button onclick="register()">Criar aluno com login</button>
+ <button onclick="logout()">Logout</button>
+</div>
+
+<!-- 🧠 APP (ESCONDIDO ATÉ LOGAR) -->
+<div id="app" style="display:none;">
+
 <h2>Dashboard</h2>
 <div id="dashboard">
  <p>Total: <span id="total">0</span></p>
  <p>Ativos: <span id="ativos">0</span></p>
  <p>Inativos: <span id="inativos">0</span></p>
 </div>
-<h2>Estatísticas</h2>
 
+<h2>Estatísticas</h2>
 <div class="grafico-container">
  <canvas id="graficoAlunos"></canvas>
 </div>
@@ -30,8 +43,6 @@
 <input id="plano" placeholder="Plano">
 <input id="status" placeholder="Status">
 <input id="data" type="date">
-
-<input id="busca" placeholder="Buscar aluno..." onkeyup="buscarAluno()">
 
 <button onclick="cadastrarAluno()">Salvar</button>
 
@@ -52,6 +63,8 @@
 
  <tbody id="listaAlunos"></tbody>
 </table>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
