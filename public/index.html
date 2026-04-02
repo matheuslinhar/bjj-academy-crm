@@ -1,73 +1,216 @@
 <!DOCTYPE html>
 <html>
-
 <head>
- <title>BJJ Academy CRM</title>
- <link rel="stylesheet" href="style.css">
+  <title>BJJ Academy CRM</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <h1>BJJ Academy CRM</h1>
 
 <!-- 🔐 LOGIN -->
 <div id="login">
- <h2>Login</h2>
- <input id="email" placeholder="Email">
- <input id="senha" type="password" placeholder="Senha">
- <button onclick="login()">Entrar</button>
- <button onclick="register()">Criar aluno com login</button>
- <button onclick="logout()">Logout</button>
+  <h2>Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
+  <button onclick="login()">Entrar</button>
+  <button onclick="abrirModal('modal-register')">Criar aluno com login</button>
 </div>
 
-<!-- 🧠 APP (ESCONDIDO ATÉ LOGAR) -->
+<!-- 🧠 APP -->
 <div id="app" style="display:none;">
 
-<h2>Dashboard</h2>
-<div id="dashboard">
- <p>Total: <span id="total">0</span></p>
- <p>Ativos: <span id="ativos">0</span></p>
- <p>Inativos: <span id="inativos">0</span></p>
+  <div class="topo">
+    <span>Você é: <strong id="label-role"></strong></span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- ========== PAINEL ALUNO ========== -->
+  <div id="painel-aluno" style="display:none;">
+
+    <h2>Meu Perfil</h2>
+    <div id="perfil-aluno" class="card-perfil"></div>
+
+    <h2>Próximas Aulas</h2>
+    <div id="proximas-aulas"></div>
+
+    <h2>Fazer Check-in</h2>
+    <div id="checkin-area"></div>
+
+    <h2>Minhas Presenças</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th><th>Dia</th><th>Horário</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="lista-presencas-aluno"></tbody>
+    </table>
+
+    <h2>Mensalidades</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Mês</th><th>Ano</th><th>Status</th><th>Data Pagamento</th>
+        </tr>
+      </thead>
+      <tbody id="lista-pagamentos-aluno"></tbody>
+    </table>
+
+  </div>
+
+  <!-- ========== PAINEL GESTÃO ========== -->
+  <div id="painel-gestao" style="display:none;">
+
+    <h2>Dashboard</h2>
+    <div id="dashboard">
+      <p>Total: <span id="total">0</span></p>
+      <p>Ativos: <span id="ativos">0</span></p>
+      <p>Inativos: <span id="inativos">0</span></p>
+    </div>
+
+    <h2>Estatísticas</h2>
+    <div class="grafico-container">
+      <canvas id="graficoAlunos"></canvas>
+    </div>
+
+    <!-- Cadastrar Aluno -->
+    <div id="secao-cadastro">
+      <h2>Cadastrar Aluno</h2>
+      <input id="nome" placeholder="Nome">
+      <input id="faixa" placeholder="Faixa">
+      <input id="telefone" placeholder="Telefone">
+      <input id="plano" placeholder="Plano">
+      <input id="status" placeholder="Status (ativo/inativo)">
+      <input id="data" type="date">
+      <button onclick="cadastrarAluno()">Salvar Aluno</button>
+    </div>
+
+    <!-- Painel Admin -->
+    <div id="secao-admin">
+      <h2>Painel Admin</h2>
+      <button onclick="abrirModal('modal-professor')">+ Criar Professor</button>
+    </div>
+
+    <!-- Horários -->
+    <h2>Horários de Aula</h2>
+    <div id="secao-horarios">
+      <input id="h-dia" placeholder="Dia (Segunda, Quarta...)">
+      <input id="h-inicio" placeholder="Início (21:15)">
+      <input id="h-fim" placeholder="Fim (22:30)">
+      <input id="h-professor" placeholder="Professor">
+      <input id="h-data" type="date" title="Só para aulas avulsas">
+      <button onclick="criarHorario()">+ Adicionar Aula</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Dia</th><th>Início</th><th>Fim</th>
+          <th>Professor</th><th>Tipo</th><th>Data Específica</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="lista-horarios"></tbody>
+    </table>
+
+    <!-- Presenças pendentes -->
+    <h2>Presenças Pendentes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Aluno</th><th>Data</th><th>Aula</th><th>Status</th><th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="lista-presencas-gestao"></tbody>
+    </table>
+
+    <!-- Presença manual -->
+    <h2>Registrar Presença Manual</h2>
+    <select id="pm-aluno"></select>
+    <select id="pm-horario"></select>
+    <input id="pm-data" type="date">
+    <button onclick="presencaManual()">Registrar</button>
+
+    <!-- Pagamentos -->
+    <h2>Registrar Pagamento</h2>
+    <select id="pag-aluno"></select>
+    <select id="pag-mes">
+      <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+      <option value="03">Março</option><option value="04">Abril</option>
+      <option value="05">Maio</option><option value="06">Junho</option>
+      <option value="07">Julho</option><option value="08">Agosto</option>
+      <option value="09">Setembro</option><option value="10">Outubro</option>
+      <option value="11">Novembro</option><option value="12">Dezembro</option>
+    </select>
+    <input id="pag-ano" placeholder="Ano (2025)">
+    <select id="pag-status">
+      <option value="pago">Pago</option>
+      <option value="pendente">Pendente</option>
+    </select>
+    <button onclick="registrarPagamento()">Salvar Pagamento</button>
+
+    <!-- Lista de Alunos -->
+    <h2>Lista de Alunos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th><th>Faixa</th><th>Telefone</th>
+          <th>Plano</th><th>Status</th><th>Data</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="listaAlunos"></tbody>
+    </table>
+
+  </div>
 </div>
 
-<h2>Estatísticas</h2>
-<div class="grafico-container">
- <canvas id="graficoAlunos"></canvas>
+<!-- ========== MODAIS ========== -->
+
+<!-- Modal Register -->
+<div id="modal-register" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3>Criar Aluno com Login</h3>
+    <input id="reg-nome" placeholder="Nome completo">
+    <input id="reg-email" placeholder="Email" type="email">
+    <input id="reg-senha" placeholder="Senha" type="password">
+    <div class="modal-botoes">
+      <button onclick="submitRegister()">Criar</button>
+      <button class="btn-cancelar" onclick="fecharModal('modal-register')">Cancelar</button>
+    </div>
+  </div>
 </div>
 
-<h2>Cadastrar Aluno</h2>
+<!-- Modal Editar Aluno -->
+<div id="modal-editar" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3>Editar Aluno</h3>
+    <input type="hidden" id="edit-id">
+    <input id="edit-nome" placeholder="Nome">
+    <input id="edit-faixa" placeholder="Faixa">
+    <input id="edit-telefone" placeholder="Telefone">
+    <input id="edit-plano" placeholder="Plano">
+    <input id="edit-status" placeholder="Status (ativo/inativo)">
+    <input id="edit-data" type="date">
+    <div class="modal-botoes">
+      <button onclick="submitEditar()">Salvar</button>
+      <button class="btn-cancelar" onclick="fecharModal('modal-editar')">Cancelar</button>
+    </div>
+  </div>
+</div>
 
-<input id="nome" placeholder="Nome">
-<input id="faixa" placeholder="Faixa">
-<input id="telefone" placeholder="Telefone">
-<input id="plano" placeholder="Plano">
-<input id="status" placeholder="Status">
-<input id="data" type="date">
-
-<button onclick="cadastrarAluno()">Salvar</button>
-
-<h2>Lista de Alunos</h2>
-
-<table border="1">
- <thead>
-  <tr>
-   <th>Nome</th>
-   <th>Faixa</th>
-   <th>Telefone</th>
-   <th>Plano</th>
-   <th>Status</th>
-   <th>Data Matrícula</th>
-   <th>Ações</th>
-  </tr>
- </thead>
-
- <tbody id="listaAlunos"></tbody>
-</table>
-
+<!-- Modal Criar Professor -->
+<div id="modal-professor" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3>Criar Professor</h3>
+    <input id="prof-email" placeholder="Email" type="email">
+    <input id="prof-senha" placeholder="Senha" type="password">
+    <div class="modal-botoes">
+      <button onclick="submitProfessor()">Criar</button>
+      <button class="btn-cancelar" onclick="fecharModal('modal-professor')">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
-
 </body>
 </html>
