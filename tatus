@@ -1,0 +1,35 @@
+[33mcommit 0e4e382c9a1ae628c720f19502af7c3cce3e17f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Matheus Linhar <seg.primelinhar@gmail.com>
+Date:   Thu Apr 2 14:11:15 2026 -0300
+
+    Atualizando sistema de login e correções no CRM
+
+[33mcommit 6ba52f574a7f4b12938cff442ee4a2c19665b78b[m
+Author: Matheus Linhar <seg.primelinhar@gmail.com>
+Date:   Tue Mar 24 16:26:50 2026 -0300
+
+    Login
+
+[33mcommit 5bdb445d82e4f594ed74b91be639fc5e0ee9db00[m
+Author: Matheus Linhar <seg.primelinhar@gmail.com>
+Date:   Tue Mar 17 15:38:00 2026 -0300
+
+    fix: corrige dashboard e gráfico (status ativo/inativo) + melhorias no CRUD
+
+[33mcommit 2d016a2736b0e5cdd8d50370713b1d6fc119a1dd[m
+Author: Matheus Linhar <seg.primelinhar@gmail.com>
+Date:   Mon Mar 16 18:57:58 2026 -0300
+
+    Adicionando banco de dados SQLite
+
+[33mcommit 64ca65a824e13d3ff045ac796e7a0954b88f0e7b[m
+Author: Matheus Linhar <seg.primelinhar@gmail.com>
+Date:   Mon Mar 16 18:38:47 2026 -0300
+
+    Adicionando README do projeto
+
+[33mcommit b94b62dcd56667110e86fbd3b51558f2bec51d89[m
+Author: Matheus Linhar <seg.primelinhar@gmail.com>
+Date:   Mon Mar 16 15:59:31 2026 -0300
+
+    Primeira versão do BJJ Academy CRM

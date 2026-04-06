@@ -24,7 +24,6 @@ function fecharModal(id) {
   document.getElementById(id).style.display = "none"
 }
 
-// Fecha modal clicando fora
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("modal-overlay")) {
     e.target.style.display = "none"
@@ -53,7 +52,7 @@ async function login() {
   }
 }
 
-/* 🆕 REGISTER — agora via modal */
+/* 🆕 REGISTER */
 async function submitRegister() {
   const nome = document.getElementById("reg-nome").value.trim()
   const email = document.getElementById("reg-email").value.trim()
@@ -74,9 +73,9 @@ async function submitRegister() {
     document.getElementById("reg-nome").value = ""
     document.getElementById("reg-email").value = ""
     document.getElementById("reg-senha").value = ""
-    alert("Aluno criado! Pode fazer login.")
+    alert("Conta criada! Faça login.")
   } else {
-    alert(data.erro || "Erro ao criar aluno")
+    alert(data.erro || "Erro ao criar conta")
   }
 }
 
@@ -100,13 +99,41 @@ function iniciarApp() {
   labelRole.style.color = cores[role] || "#e2e8f0"
 
   if (role === "aluno") {
+    document.getElementById("nav-aluno").style.display = "flex"
     document.getElementById("painel-aluno").style.display = "block"
     carregarPainelAluno()
   } else {
+    document.getElementById("nav-gestao").style.display = "flex"
     document.getElementById("painel-gestao").style.display = "block"
-    document.getElementById("secao-admin").style.display = role === "admin" ? "block" : "none"
+    if (role === "admin") {
+      document.getElementById("tab-admin").style.display = "inline-block"
+    }
     carregarPainelGestao()
   }
+}
+
+/* 🗂️ ABAS GESTÃO */
+function mudarAba(nome) {
+  document.querySelectorAll("#painel-gestao .aba").forEach(a => a.classList.remove("active"))
+  document.querySelectorAll("#nav-gestao .nav-tab").forEach(t => t.classList.remove("active"))
+
+  document.getElementById("aba-" + nome).classList.add("active")
+
+  document.querySelectorAll("#nav-gestao .nav-tab").forEach(t => {
+    if (t.getAttribute("onclick")?.includes(nome)) t.classList.add("active")
+  })
+}
+
+/* 🗂️ ABAS ALUNO */
+function mudarAbaAluno(nome) {
+  document.querySelectorAll("#painel-aluno .aba").forEach(a => a.classList.remove("active"))
+  document.querySelectorAll("#nav-aluno .nav-tab").forEach(t => t.classList.remove("active"))
+
+  document.getElementById("aba-aluno-" + nome).classList.add("active")
+
+  document.querySelectorAll("#nav-aluno .nav-tab").forEach(t => {
+    if (t.getAttribute("onclick")?.includes(nome)) t.classList.add("active")
+  })
 }
 
 /* ========== PAINEL ALUNO ========== */
@@ -125,16 +152,25 @@ async function carregarPerfilAluno() {
   if (!aluno) return
 
   document.getElementById("perfil-aluno").innerHTML = `
-    <div class="card-info">
-      <p><strong>Nome:</strong> ${aluno.nome}</p>
-      <p><strong>Faixa:</strong> ${aluno.faixa || "-"}</p>
-      <p><strong>Plano:</strong> ${aluno.plano || "-"}</p>
-      <p><strong>Status:</strong>
+    <div class="perfil-info">
+      <div class="perfil-linha">
+        <span>Nome</span><span>${aluno.nome}</span>
+      </div>
+      <div class="perfil-linha">
+        <span>Faixa</span><span>${aluno.faixa || "-"}</span>
+      </div>
+      <div class="perfil-linha">
+        <span>Plano</span><span>${aluno.plano || "-"}</span>
+      </div>
+      <div class="perfil-linha">
+        <span>Status</span>
         <span class="${normalizarStatus(aluno.status) === 'ativo' ? 'ativo' : 'inativo'}">
           ${aluno.status || "-"}
         </span>
-      </p>
-      <p><strong>Matrícula:</strong> ${aluno.data || "-"}</p>
+      </div>
+      <div class="perfil-linha">
+        <span>Matrícula</span><span>${aluno.data || "-"}</span>
+      </div>
     </div>
   `
 }
@@ -150,19 +186,16 @@ async function carregarProximasAulas() {
     return true
   })
 
-  const area = document.getElementById("proximas-aulas")
-  const checkinArea = document.getElementById("checkin-area")
-
-  area.innerHTML = proximas.map(h => `
+  document.getElementById("proximas-aulas").innerHTML = proximas.map(h => `
     <div class="card-aula">
-      <strong>${h.dia_semana || h.data_especifica}</strong>
-      ${h.hora_inicio} – ${h.hora_fim}
+      <span class="aula-dia">${h.dia_semana || h.data_especifica}</span>
+      <span class="aula-hora">${h.hora_inicio} – ${h.hora_fim}</span>
       ${h.tipo === "avulso" ? `<span class="badge-avulso">Avulsa</span>` : ""}
     </div>
-  `).join("") || "<p>Nenhuma aula cadastrada.</p>"
+  `).join("") || "<p style='color:var(--text-muted)'>Nenhuma aula cadastrada.</p>"
 
-  checkinArea.innerHTML = proximas.map(h => `
-    <button onclick="fazerCheckin(${h.id})">
+  document.getElementById("checkin-area").innerHTML = proximas.map(h => `
+    <button class="btn-primary" onclick="fazerCheckin(${h.id})">
       Check-in: ${h.dia_semana || h.data_especifica} ${h.hora_inicio}
     </button>
   `).join("")
@@ -190,7 +223,7 @@ async function carregarPresencasAluno() {
       <td>${p.hora_inicio} – ${p.hora_fim}</td>
       <td class="${p.status === 'confirmado' ? 'ativo' : 'inativo'}">${p.status}</td>
     </tr>
-  `).join("") || "<tr><td colspan='4'>Nenhuma presença registrada.</td></tr>"
+  `).join("") || "<tr><td colspan='4' style='color:var(--text-muted);text-align:center'>Nenhuma presença.</td></tr>"
 }
 
 async function carregarPagamentosAluno() {
@@ -205,7 +238,7 @@ async function carregarPagamentosAluno() {
       <td class="${p.status === 'pago' ? 'ativo' : 'inativo'}">${p.status}</td>
       <td>${p.data_pagamento || "-"}</td>
     </tr>
-  `).join("") || "<tr><td colspan='4'>Nenhum pagamento registrado.</td></tr>"
+  `).join("") || "<tr><td colspan='4' style='color:var(--text-muted);text-align:center'>Nenhum pagamento.</td></tr>"
 }
 
 /* ========== PAINEL GESTÃO ========== */
@@ -237,6 +270,9 @@ async function carregarGrafico() {
     data: {
       labels: ["Ativos", "Inativos"],
       datasets: [{ data: [d.ativos, d.inativos], backgroundColor: ["#22c55e", "#ef4444"] }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: "#e2e8f0" } } }
     }
   })
 }
@@ -251,7 +287,7 @@ async function carregarAlunos() {
   alunos.forEach(aluno => {
     const statusNorm = normalizarStatus(aluno.status)
     const btnExcluir = role === "admin"
-      ? `<button class="btn-excluir" onclick="deletarAluno(${aluno.id})">Excluir</button>`
+      ? `<button class="btn-danger" onclick="deletarAluno(${aluno.id})">Excluir</button>`
       : ""
     const linha = document.createElement("tr")
     linha.innerHTML = `
@@ -261,8 +297,8 @@ async function carregarAlunos() {
       <td>${aluno.plano || "-"}</td>
       <td class="${statusNorm === 'ativo' ? 'ativo' : 'inativo'}">${aluno.status}</td>
       <td>${aluno.data || "-"}</td>
-      <td>
-        <button onclick="editarAluno(${aluno.id}, '${aluno.nome}', '${aluno.faixa || ''}', '${aluno.telefone || ''}', '${aluno.plano || ''}', '${aluno.status || ''}', '${aluno.data || ''}')">Editar</button>
+      <td style="display:flex;gap:6px;">
+        <button class="btn-sm" onclick="editarAluno(${aluno.id}, '${aluno.nome}', '${aluno.faixa || ''}', '${aluno.telefone || ''}', '${aluno.plano || ''}', '${aluno.status || ''}', '${aluno.data || ''}')">Editar</button>
         ${btnExcluir}
       </td>
     `
@@ -276,7 +312,7 @@ async function cadastrarAluno() {
     faixa: document.getElementById("faixa").value,
     telefone: document.getElementById("telefone").value,
     plano: document.getElementById("plano").value,
-    status: document.getElementById("status").value.trim(),
+    status: document.getElementById("status").value,
     data: document.getElementById("data").value
   }
   const res = await api("/alunos", { method: "POST", body: JSON.stringify(aluno) })
@@ -288,7 +324,6 @@ async function cadastrarAluno() {
   limparCampos()
 }
 
-/* ✏️ EDITAR — abre modal com dados preenchidos */
 function editarAluno(id, nome, faixa, telefone, plano, status, data) {
   document.getElementById("edit-id").value = id
   document.getElementById("edit-nome").value = nome
@@ -302,23 +337,21 @@ function editarAluno(id, nome, faixa, telefone, plano, status, data) {
 
 async function submitEditar() {
   const id = document.getElementById("edit-id").value
-  const nome = document.getElementById("edit-nome").value
-  const faixa = document.getElementById("edit-faixa").value
-  const telefone = document.getElementById("edit-telefone").value
-  const plano = document.getElementById("edit-plano").value
-  const status = document.getElementById("edit-status").value
-  const data = document.getElementById("edit-data").value
-
   const res = await api("/alunos/" + id, {
     method: "PUT",
-    body: JSON.stringify({ nome, faixa, telefone, plano, status, data })
+    body: JSON.stringify({
+      nome: document.getElementById("edit-nome").value,
+      faixa: document.getElementById("edit-faixa").value,
+      telefone: document.getElementById("edit-telefone").value,
+      plano: document.getElementById("edit-plano").value,
+      status: document.getElementById("edit-status").value,
+      data: document.getElementById("edit-data").value
+    })
   })
-
   if (!res.ok) {
     const d = await res.json()
     return alert(d.erro || "Erro ao editar")
   }
-
   fecharModal("modal-editar")
   carregarPainelGestao()
 }
@@ -333,10 +366,12 @@ async function deletarAluno(id) {
 
 function limparCampos() {
   ["nome","faixa","telefone","plano","status","data"]
-    .forEach(id => document.getElementById(id).value = "")
+    .forEach(id => {
+      const el = document.getElementById(id)
+      if (el) el.value = ""
+    })
 }
 
-/* 📅 HORÁRIOS */
 async function carregarHorarios() {
   const res = await api("/horarios")
   const horarios = await res.json()
@@ -351,11 +386,9 @@ async function carregarHorarios() {
       <td>${h.professor || "-"}</td>
       <td>${h.tipo}</td>
       <td>${h.data_especifica || "-"}</td>
-      <td>
-        ${role === "admin"
-          ? `<button class="btn-excluir" onclick="deletarHorario(${h.id})">Excluir</button>`
-          : ""}
-      </td>
+      <td>${role === "admin"
+        ? `<button class="btn-danger" onclick="deletarHorario(${h.id})">Excluir</button>`
+        : "-"}</td>
     </tr>
   `).join("")
 }
@@ -370,16 +403,8 @@ async function criarHorario() {
 
   const res = await api("/horarios", {
     method: "POST",
-    body: JSON.stringify({
-      dia_semana: dia || null,
-      hora_inicio: inicio,
-      hora_fim: fim,
-      professor,
-      data_especifica: dataEsp || null,
-      tipo
-    })
+    body: JSON.stringify({ dia_semana: dia || null, hora_inicio: inicio, hora_fim: fim, professor, data_especifica: dataEsp || null, tipo })
   })
-
   const data = await res.json()
   alert(data.mensagem || data.erro)
   carregarHorarios()
@@ -392,7 +417,6 @@ async function deletarHorario(id) {
   carregarHorarios()
 }
 
-/* ✅ PRESENÇAS GESTÃO */
 async function carregarPresencasGestao() {
   const res = await api("/presencas")
   const presencas = await res.json()
@@ -405,9 +429,9 @@ async function carregarPresencasGestao() {
       <td>${p.data}</td>
       <td>${p.dia_semana || p.data_especifica} ${p.hora_inicio}</td>
       <td class="inativo">${p.status}</td>
-      <td><button onclick="confirmarPresenca(${p.id})">✔ Confirmar</button></td>
+      <td><button class="btn-sm" onclick="confirmarPresenca(${p.id})">✔ Confirmar</button></td>
     </tr>
-  `).join("") || "<tr><td colspan='5'>Nenhuma presença pendente.</td></tr>"
+  `).join("") || "<tr><td colspan='5' style='color:var(--text-muted);text-align:center'>Nenhuma presença pendente.</td></tr>"
 }
 
 async function confirmarPresenca(id) {
@@ -432,7 +456,6 @@ async function presencaManual() {
   carregarPresencasGestao()
 }
 
-/* 💰 PAGAMENTOS */
 async function registrarPagamento() {
   const aluno_id = document.getElementById("pag-aluno").value
   const mes = document.getElementById("pag-mes").value
@@ -448,7 +471,6 @@ async function registrarPagamento() {
   alert(data.mensagem || data.erro)
 }
 
-/* 🔧 POPULAR SELECTS */
 async function popularSelects() {
   const res = await api("/alunos")
   const alunos = await res.json()
@@ -468,11 +490,9 @@ async function popularSelects() {
   }
 }
 
-/* 🆕 CRIAR PROFESSOR — agora via modal */
 async function submitProfessor() {
   const email = document.getElementById("prof-email").value.trim()
   const senha = document.getElementById("prof-senha").value
-
   if (!email || !senha) return alert("Preencha todos os campos")
 
   const res = await api("/usuarios", {

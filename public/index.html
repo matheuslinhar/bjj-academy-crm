@@ -1,211 +1,469 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BJJ Academy CRM</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<h1>BJJ Academy CRM</h1>
-
 <!-- 🔐 LOGIN -->
-<div id="login">
-  <h2>Login</h2>
-  <input id="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
-  <button onclick="abrirModal('modal-register')">Criar aluno com login</button>
+<div id="login" class="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="logo-icon">🥋</span>
+      <h1>BJJ Academy</h1>
+      <p>Sistema de Gestão</p>
+    </div>
+    <div class="login-form">
+      <div class="input-group">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="seu@email.com">
+      </div>
+      <div class="input-group">
+        <label>Senha</label>
+        <input id="senha" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn-primary btn-full" onclick="login()">Entrar</button>
+      <button class="btn-ghost btn-full" onclick="abrirModal('modal-register')">
+        Criar conta de aluno
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- 🧠 APP -->
 <div id="app" style="display:none;">
 
-  <div class="topo">
-    <span>Você é: <strong id="label-role"></strong></span>
-    <button class="btn-logout" onclick="logout()">Logout</button>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="logo-icon">🥋</span>
+      <span class="brand-name">BJJ Academy</span>
+    </div>
+
+    <!-- TABS ADMIN/PROFESSOR -->
+    <div id="nav-gestao" class="nav-tabs" style="display:none;">
+      <button class="nav-tab active" onclick="mudarAba('dashboard')">Dashboard</button>
+      <button class="nav-tab" onclick="mudarAba('alunos')">Alunos</button>
+      <button class="nav-tab" onclick="mudarAba('horarios')">Horários</button>
+      <button class="nav-tab" onclick="mudarAba('presencas')">Presenças</button>
+      <button class="nav-tab" onclick="mudarAba('pagamentos')">Pagamentos</button>
+      <button id="tab-admin" class="nav-tab" onclick="mudarAba('admin')" style="display:none;">Admin</button>
+    </div>
+
+    <!-- TABS ALUNO -->
+    <div id="nav-aluno" class="nav-tabs" style="display:none;">
+      <button class="nav-tab active" onclick="mudarAbaAluno('perfil')">Meu Perfil</button>
+      <button class="nav-tab" onclick="mudarAbaAluno('aulas')">Aulas</button>
+      <button class="nav-tab" onclick="mudarAbaAluno('presencas')">Presenças</button>
+      <button class="nav-tab" onclick="mudarAbaAluno('mensalidade')">Mensalidade</button>
+    </div>
+
+    <div class="navbar-right">
+      <span class="badge-role" id="label-role"></span>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- ========== PAINEL GESTÃO ========== -->
+  <div id="painel-gestao" style="display:none;">
+
+    <!-- ABA DASHBOARD -->
+    <div id="aba-dashboard" class="aba active">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <span class="page-sub">Visão geral da academia</span>
+      </div>
+      <div class="cards-grid">
+        <div class="card-stat">
+          <div class="card-stat-icon" style="background:#3b82f620;">👥</div>
+          <div>
+            <div class="card-stat-valor" id="total">0</div>
+            <div class="card-stat-label">Total de Alunos</div>
+          </div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-icon" style="background:#22c55e20;">✅</div>
+          <div>
+            <div class="card-stat-valor" style="color:#22c55e" id="ativos">0</div>
+            <div class="card-stat-label">Alunos Ativos</div>
+          </div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-icon" style="background:#ef444420;">❌</div>
+          <div>
+            <div class="card-stat-valor" style="color:#ef4444" id="inativos">0</div>
+            <div class="card-stat-label">Alunos Inativos</div>
+          </div>
+        </div>
+      </div>
+      <div class="card grafico-container">
+        <h3>Ativos vs Inativos</h3>
+        <canvas id="graficoAlunos"></canvas>
+      </div>
+    </div>
+
+    <!-- ABA ALUNOS -->
+    <div id="aba-alunos" class="aba">
+      <div class="page-header">
+        <h2>Alunos</h2>
+        <span class="page-sub">Gerencie os alunos da academia</span>
+      </div>
+
+      <div class="card">
+        <h3>Cadastrar Aluno</h3>
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Nome</label>
+            <input id="nome" placeholder="Nome completo">
+          </div>
+          <div class="input-group">
+            <label>Faixa</label>
+            <select id="faixa">
+              <option value="">Selecione</option>
+              <option>Branca</option>
+              <option>Azul</option>
+              <option>Roxa</option>
+              <option>Marrom</option>
+              <option>Preta</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Telefone</label>
+            <input id="telefone" placeholder="(00) 00000-0000">
+          </div>
+          <div class="input-group">
+            <label>Plano</label>
+            <input id="plano" placeholder="Ex: Mensal">
+          </div>
+          <div class="input-group">
+            <label>Status</label>
+            <select id="status">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Data de Matrícula</label>
+            <input id="data" type="date">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="cadastrarAluno()">Salvar Aluno</button>
+      </div>
+
+      <div class="card">
+        <h3>Lista de Alunos</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th><th>Faixa</th><th>Telefone</th>
+                <th>Plano</th><th>Status</th><th>Matrícula</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="listaAlunos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA HORÁRIOS -->
+    <div id="aba-horarios" class="aba">
+      <div class="page-header">
+        <h2>Horários</h2>
+        <span class="page-sub">Gerencie as aulas da academia</span>
+      </div>
+
+      <div class="card">
+        <h3>Adicionar Aula</h3>
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Dia da Semana</label>
+            <select id="h-dia">
+              <option value="">Selecione (aula fixa)</option>
+              <option>Segunda</option><option>Terça</option><option>Quarta</option>
+              <option>Quinta</option><option>Sexta</option><option>Sábado</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Início</label>
+            <input id="h-inicio" placeholder="21:15">
+          </div>
+          <div class="input-group">
+            <label>Fim</label>
+            <input id="h-fim" placeholder="22:30">
+          </div>
+          <div class="input-group">
+            <label>Professor</label>
+            <input id="h-professor" placeholder="Nome do professor">
+          </div>
+          <div class="input-group">
+            <label>Data Específica (aula avulsa)</label>
+            <input id="h-data" type="date">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="criarHorario()">Adicionar Aula</button>
+      </div>
+
+      <div class="card">
+        <h3>Grade de Aulas</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dia</th><th>Início</th><th>Fim</th>
+                <th>Professor</th><th>Tipo</th><th>Data</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="lista-horarios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA PRESENÇAS -->
+    <div id="aba-presencas" class="aba">
+      <div class="page-header">
+        <h2>Presenças</h2>
+        <span class="page-sub">Confirme presenças e registre manualmente</span>
+      </div>
+
+      <div class="card">
+        <h3>Presenças Pendentes</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Aluno</th><th>Data</th><th>Aula</th><th>Status</th><th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="lista-presencas-gestao"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Registrar Presença Manual</h3>
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Aluno</label>
+            <select id="pm-aluno"></select>
+          </div>
+          <div class="input-group">
+            <label>Aula</label>
+            <select id="pm-horario"></select>
+          </div>
+          <div class="input-group">
+            <label>Data</label>
+            <input id="pm-data" type="date">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="presencaManual()">Registrar</button>
+      </div>
+    </div>
+
+    <!-- ABA PAGAMENTOS -->
+    <div id="aba-pagamentos" class="aba">
+      <div class="page-header">
+        <h2>Pagamentos</h2>
+        <span class="page-sub">Controle de mensalidades</span>
+      </div>
+
+      <div class="card">
+        <h3>Registrar Pagamento</h3>
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Aluno</label>
+            <select id="pag-aluno"></select>
+          </div>
+          <div class="input-group">
+            <label>Mês</label>
+            <select id="pag-mes">
+              <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+              <option value="03">Março</option><option value="04">Abril</option>
+              <option value="05">Maio</option><option value="06">Junho</option>
+              <option value="07">Julho</option><option value="08">Agosto</option>
+              <option value="09">Setembro</option><option value="10">Outubro</option>
+              <option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Ano</label>
+            <input id="pag-ano" placeholder="2025">
+          </div>
+          <div class="input-group">
+            <label>Status</label>
+            <select id="pag-status">
+              <option value="pago">Pago</option>
+              <option value="pendente">Pendente</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="registrarPagamento()">Salvar</button>
+      </div>
+    </div>
+
+    <!-- ABA ADMIN -->
+    <div id="aba-admin" class="aba">
+      <div class="page-header">
+        <h2>Painel Admin</h2>
+        <span class="page-sub">Gerenciamento de usuários</span>
+      </div>
+      <div class="card" style="max-width:400px;">
+        <h3>Criar Professor</h3>
+        <button class="btn-primary" onclick="abrirModal('modal-professor')">
+          + Novo Professor
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- ========== PAINEL ALUNO ========== -->
   <div id="painel-aluno" style="display:none;">
 
-    <h2>Meu Perfil</h2>
-    <div id="perfil-aluno" class="card-perfil"></div>
-
-    <h2>Próximas Aulas</h2>
-    <div id="proximas-aulas"></div>
-
-    <h2>Fazer Check-in</h2>
-    <div id="checkin-area"></div>
-
-    <h2>Minhas Presenças</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th><th>Dia</th><th>Horário</th><th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="lista-presencas-aluno"></tbody>
-    </table>
-
-    <h2>Mensalidades</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Mês</th><th>Ano</th><th>Status</th><th>Data Pagamento</th>
-        </tr>
-      </thead>
-      <tbody id="lista-pagamentos-aluno"></tbody>
-    </table>
-
-  </div>
-
-  <!-- ========== PAINEL GESTÃO ========== -->
-  <div id="painel-gestao" style="display:none;">
-
-    <h2>Dashboard</h2>
-    <div id="dashboard">
-      <p>Total: <span id="total">0</span></p>
-      <p>Ativos: <span id="ativos">0</span></p>
-      <p>Inativos: <span id="inativos">0</span></p>
+    <!-- ABA PERFIL -->
+    <div id="aba-aluno-perfil" class="aba active">
+      <div class="page-header">
+        <h2>Meu Perfil</h2>
+      </div>
+      <div id="perfil-aluno" class="card card-perfil"></div>
     </div>
 
-    <h2>Estatísticas</h2>
-    <div class="grafico-container">
-      <canvas id="graficoAlunos"></canvas>
+    <!-- ABA AULAS -->
+    <div id="aba-aluno-aulas" class="aba">
+      <div class="page-header">
+        <h2>Próximas Aulas</h2>
+      </div>
+      <div id="proximas-aulas" class="aulas-grid"></div>
+      <div class="page-header" style="margin-top:32px;">
+        <h2>Fazer Check-in</h2>
+      </div>
+      <div id="checkin-area" class="checkin-grid"></div>
     </div>
 
-    <!-- Cadastrar Aluno -->
-    <div id="secao-cadastro">
-      <h2>Cadastrar Aluno</h2>
-      <input id="nome" placeholder="Nome">
-      <input id="faixa" placeholder="Faixa">
-      <input id="telefone" placeholder="Telefone">
-      <input id="plano" placeholder="Plano">
-      <input id="status" placeholder="Status (ativo/inativo)">
-      <input id="data" type="date">
-      <button onclick="cadastrarAluno()">Salvar Aluno</button>
+    <!-- ABA PRESENÇAS ALUNO -->
+    <div id="aba-aluno-presencas" class="aba">
+      <div class="page-header">
+        <h2>Minhas Presenças</h2>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Data</th><th>Dia</th><th>Horário</th><th>Status</th></tr>
+            </thead>
+            <tbody id="lista-presencas-aluno"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- Painel Admin -->
-    <div id="secao-admin">
-      <h2>Painel Admin</h2>
-      <button onclick="abrirModal('modal-professor')">+ Criar Professor</button>
+    <!-- ABA MENSALIDADE -->
+    <div id="aba-aluno-mensalidade" class="aba">
+      <div class="page-header">
+        <h2>Mensalidades</h2>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Mês</th><th>Ano</th><th>Status</th><th>Data Pagamento</th></tr>
+            </thead>
+            <tbody id="lista-pagamentos-aluno"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-
-    <!-- Horários -->
-    <h2>Horários de Aula</h2>
-    <div id="secao-horarios">
-      <input id="h-dia" placeholder="Dia (Segunda, Quarta...)">
-      <input id="h-inicio" placeholder="Início (21:15)">
-      <input id="h-fim" placeholder="Fim (22:30)">
-      <input id="h-professor" placeholder="Professor">
-      <input id="h-data" type="date" title="Só para aulas avulsas">
-      <button onclick="criarHorario()">+ Adicionar Aula</button>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Dia</th><th>Início</th><th>Fim</th>
-          <th>Professor</th><th>Tipo</th><th>Data Específica</th><th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="lista-horarios"></tbody>
-    </table>
-
-    <!-- Presenças pendentes -->
-    <h2>Presenças Pendentes</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Aluno</th><th>Data</th><th>Aula</th><th>Status</th><th>Ação</th>
-        </tr>
-      </thead>
-      <tbody id="lista-presencas-gestao"></tbody>
-    </table>
-
-    <!-- Presença manual -->
-    <h2>Registrar Presença Manual</h2>
-    <select id="pm-aluno"></select>
-    <select id="pm-horario"></select>
-    <input id="pm-data" type="date">
-    <button onclick="presencaManual()">Registrar</button>
-
-    <!-- Pagamentos -->
-    <h2>Registrar Pagamento</h2>
-    <select id="pag-aluno"></select>
-    <select id="pag-mes">
-      <option value="01">Janeiro</option><option value="02">Fevereiro</option>
-      <option value="03">Março</option><option value="04">Abril</option>
-      <option value="05">Maio</option><option value="06">Junho</option>
-      <option value="07">Julho</option><option value="08">Agosto</option>
-      <option value="09">Setembro</option><option value="10">Outubro</option>
-      <option value="11">Novembro</option><option value="12">Dezembro</option>
-    </select>
-    <input id="pag-ano" placeholder="Ano (2025)">
-    <select id="pag-status">
-      <option value="pago">Pago</option>
-      <option value="pendente">Pendente</option>
-    </select>
-    <button onclick="registrarPagamento()">Salvar Pagamento</button>
-
-    <!-- Lista de Alunos -->
-    <h2>Lista de Alunos</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th><th>Faixa</th><th>Telefone</th>
-          <th>Plano</th><th>Status</th><th>Data</th><th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="listaAlunos"></tbody>
-    </table>
 
   </div>
 </div>
 
 <!-- ========== MODAIS ========== -->
 
-<!-- Modal Register -->
 <div id="modal-register" class="modal-overlay" style="display:none;">
   <div class="modal">
-    <h3>Criar Aluno com Login</h3>
-    <input id="reg-nome" placeholder="Nome completo">
-    <input id="reg-email" placeholder="Email" type="email">
-    <input id="reg-senha" placeholder="Senha" type="password">
+    <h3>Criar Conta de Aluno</h3>
+    <div class="input-group">
+      <label>Nome completo</label>
+      <input id="reg-nome" placeholder="João Silva">
+    </div>
+    <div class="input-group">
+      <label>Email</label>
+      <input id="reg-email" type="email" placeholder="joao@email.com">
+    </div>
+    <div class="input-group">
+      <label>Senha</label>
+      <input id="reg-senha" type="password" placeholder="••••••••">
+    </div>
     <div class="modal-botoes">
-      <button onclick="submitRegister()">Criar</button>
-      <button class="btn-cancelar" onclick="fecharModal('modal-register')">Cancelar</button>
+      <button class="btn-primary" onclick="submitRegister()">Criar Conta</button>
+      <button class="btn-ghost" onclick="fecharModal('modal-register')">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Editar Aluno -->
 <div id="modal-editar" class="modal-overlay" style="display:none;">
   <div class="modal">
     <h3>Editar Aluno</h3>
     <input type="hidden" id="edit-id">
-    <input id="edit-nome" placeholder="Nome">
-    <input id="edit-faixa" placeholder="Faixa">
-    <input id="edit-telefone" placeholder="Telefone">
-    <input id="edit-plano" placeholder="Plano">
-    <input id="edit-status" placeholder="Status (ativo/inativo)">
-    <input id="edit-data" type="date">
+    <div class="form-grid">
+      <div class="input-group">
+        <label>Nome</label>
+        <input id="edit-nome">
+      </div>
+      <div class="input-group">
+        <label>Faixa</label>
+        <select id="edit-faixa">
+          <option value="">Selecione</option>
+          <option>Branca</option><option>Azul</option><option>Roxa</option>
+          <option>Marrom</option><option>Preta</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Telefone</label>
+        <input id="edit-telefone">
+      </div>
+      <div class="input-group">
+        <label>Plano</label>
+        <input id="edit-plano">
+      </div>
+      <div class="input-group">
+        <label>Status</label>
+        <select id="edit-status">
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Data</label>
+        <input id="edit-data" type="date">
+      </div>
+    </div>
     <div class="modal-botoes">
-      <button onclick="submitEditar()">Salvar</button>
-      <button class="btn-cancelar" onclick="fecharModal('modal-editar')">Cancelar</button>
+      <button class="btn-primary" onclick="submitEditar()">Salvar</button>
+      <button class="btn-ghost" onclick="fecharModal('modal-editar')">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Criar Professor -->
 <div id="modal-professor" class="modal-overlay" style="display:none;">
   <div class="modal">
     <h3>Criar Professor</h3>
-    <input id="prof-email" placeholder="Email" type="email">
-    <input id="prof-senha" placeholder="Senha" type="password">
+    <div class="input-group">
+      <label>Email</label>
+      <input id="prof-email" type="email" placeholder="professor@bjj.com">
+    </div>
+    <div class="input-group">
+      <label>Senha</label>
+      <input id="prof-senha" type="password" placeholder="••••••••">
+    </div>
     <div class="modal-botoes">
-      <button onclick="submitProfessor()">Criar</button>
-      <button class="btn-cancelar" onclick="fecharModal('modal-professor')">Cancelar</button>
+      <button class="btn-primary" onclick="submitProfessor()">Criar</button>
+      <button class="btn-ghost" onclick="fecharModal('modal-professor')">Cancelar</button>
     </div>
   </div>
 </div>

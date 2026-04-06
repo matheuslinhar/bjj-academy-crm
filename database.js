@@ -1,9 +1,17 @@
-const sqlite3 = require("sqlite3").verbose()
-const db = new sqlite3.Database("./bjj.db")
+const { open } = require("sqlite")
+const sqlite3 = require("sqlite3")
 
-db.serialize(() => {
+let db
 
-  db.run(`
+async function conectar() {
+  if (db) return db
+
+  db = await open({
+    filename: "./bjj.db",
+    driver: sqlite3.Database
+  })
+
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE,
@@ -12,7 +20,7 @@ db.serialize(() => {
     )
   `)
 
-  db.run(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS alunos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT,
@@ -25,7 +33,7 @@ db.serialize(() => {
     )
   `)
 
-  db.run(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS horarios (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       dia_semana TEXT,
@@ -37,7 +45,7 @@ db.serialize(() => {
     )
   `)
 
-  db.run(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS presencas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       aluno_id INTEGER,
@@ -49,7 +57,7 @@ db.serialize(() => {
     )
   `)
 
-  db.run(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS pagamentos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       aluno_id INTEGER,
@@ -61,23 +69,23 @@ db.serialize(() => {
     )
   `)
 
-  // Horários fixos padrão da academia
-  db.get("SELECT COUNT(*) as total FROM horarios", [], (err, row) => {
-    if (row.total === 0) {
-      const fixos = [
-        ["Segunda", "21:15", "22:30", null, "Professor", "fixo"],
-        ["Quarta",  "21:15", "22:30", null, "Professor", "fixo"],
-        ["Sexta",   "21:15", "22:30", null, "Professor", "fixo"]
-      ]
-      fixos.forEach(h => {
-        db.run(
-          "INSERT INTO horarios (dia_semana, hora_inicio, hora_fim, data_especifica, professor, tipo) VALUES (?,?,?,?,?,?)",
-          h
-        )
-      })
+  // Horários fixos padrão
+  const total = await db.get("SELECT COUNT(*) as total FROM horarios")
+  if (total.total === 0) {
+    const fixos = [
+      ["Segunda", "21:15", "22:30", null, "Professor", "fixo"],
+      ["Quarta",  "21:15", "22:30", null, "Professor", "fixo"],
+      ["Sexta",   "21:15", "22:30", null, "Professor", "fixo"]
+    ]
+    for (const h of fixos) {
+      await db.run(
+        "INSERT INTO horarios (dia_semana, hora_inicio, hora_fim, data_especifica, professor, tipo) VALUES (?,?,?,?,?,?)",
+        h
+      )
     }
-  })
+  }
 
-})
+  return db
+}
 
-module.exports = db
+module.exports = { conectar }
