@@ -1,14 +1,22 @@
 {
   "name": "bjj-crm",
   "version": "1.0.0",
-  "description": "",
+  "description": "CRM para academia de Jiu-Jitsu com autenticação JWT, controle de acesso e dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch server.js",
+    "test": "echo \"No tests yet\""
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "nodejs",
+    "express",
+    "crm",
+    "bjj",
+    "jwt",
+    "sqlite"
+  ],
+  "author": "Matheus Linhar",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
